@@ -4,6 +4,7 @@ const router=express.Router()
 const bodyParser=require('body-parser');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const jwt_decode = require('jwt-decode');
 const connection=require('../Helper/db.js')
 const TodoUser=require('../Model/User')
 const {RegisterValidation} = require('../Helper/validation')
@@ -66,6 +67,7 @@ const LoginUser = async (req,res,next)=>{
     })   
 }
 
+
 const GetAllUserDetails= async (req,res,next)=>{
   await TodoUser.find({}).exec((err,data) =>{
       res.status(200).json({
@@ -86,9 +88,22 @@ const GetPerticularUser= async (req,res,next) =>{
     })
 }
 
+const GetPerticularUserByUsingToken= async (req,res,next) =>{
+    var authHeader = req.headers.authorization.split(' ')[1];
+    var token = jwt_decode(authHeader);
+    await TodoUser.find({ Email :token.Email}).exec((err,data) =>{
+         res.status(200).json({
+             status:200,
+             success:true,
+             Data :data
+         })
+     })
+ }
+
 module.exports={
     RegisterUser,
     LoginUser,
     GetAllUserDetails,
-    GetPerticularUser
+    GetPerticularUser,
+    GetPerticularUserByUsingToken
 }
