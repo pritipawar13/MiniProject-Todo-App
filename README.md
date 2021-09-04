@@ -5,7 +5,7 @@ Project Description:
      When user won't to create the daily task . And also save the task  
 whenever user complete their task .The task is remove from the todo .
 
-In this Mini project I develop Following Feature 
+In this Mini project I develop Following Feature  by Using Rest Api
   1) Register User
   2) Already Registered User can only Login
   3) User Can Create the new Task.
