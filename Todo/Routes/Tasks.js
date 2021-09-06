@@ -1,5 +1,5 @@
 const router = require('express').Router();
-//const { AddTask , ShowTask, MarkCompleted, ShowAllCompletedTask,ShowUncompletedTask,RemoveAllCompletedTask,UserAndTask} = require('../Controller/Task-Controller')
+
 const Task=require('../Controller/Task-Controller')
 router.post('/add-new-task/:userid', Task.AddTask);
 router.get('/task-of-user/:username',Task.ShowTask);
