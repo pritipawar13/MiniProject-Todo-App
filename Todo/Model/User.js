@@ -1,6 +1,6 @@
 const mongoose=require('mongoose');
 const Schema=mongoose.Schema;
-const bcrypt=require('bcrypt')
+const bcrypt=require('bcrypt');
 const UserSchema=new mongoose.Schema({
     Firstname:{
         type:String,
@@ -22,8 +22,18 @@ const UserSchema=new mongoose.Schema({
     Password:{
         type:String,
         required :true
+    },
+    notes :{
+        type :String,
+        required : false
+    },
+    role:{
+        type : String,
+        default :'student',
+        enum :['student','admin','superadmin']
+
     }
 })
 
-const user=mongoose.model('TodoUser',UserSchema);
-module.exports=user;
+const user = mongoose.model('TodoUser',UserSchema);
+module.exports = user;

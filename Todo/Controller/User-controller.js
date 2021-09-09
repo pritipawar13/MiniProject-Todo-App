@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken')
 const jwt_decode = require('jwt-decode');
 const connection=require('../Helper/db.js')
 const TodoUser = require('../Model/User')
-const {RegisterValidation} = require('../Helper/validation')
 const UserRepository = require('../Repository/User-Repository')
 const redisConnection = require('../Helper/redisconnection')
 
@@ -22,19 +21,21 @@ function hashPassword(password){
 
 const RegisterUser = async (req, res, next) => {
     try {
-           const Password = hashPassword(req.body.password)
-           const exist = await UserRepository.CheckUser(req.body);
+           const Password = await hashPassword(req.body.password)
+           const exist = await UserRepository.CheckUser(req.body)
            if(exist) {
              res.status(200).json({
              message:` ${req.body.email} already Found `
               })
-            }
+            }else{
            const user = await new TodoUser({
            Firstname: req.body.firstname,
            Lastname: req.body.lastname,
            Email: req.body.email,
            Usertype: req.body.type,
-           Password: Password
+           Password: Password,
+          notes : req.body.notes,
+           role : req.body.role
            })
           await user.save()
           res.status(201).json({
@@ -42,12 +43,13 @@ const RegisterUser = async (req, res, next) => {
             success : true,
             message:`${req.body.email} Added Sucessfully into Todo App`
            })
+        }
         }catch(error){
           console.log(error)
          }
    };
 
-const LoginUser = async (req,res,next)=>{
+const LoginUser = async (req, res, next)=>{
     try {
    const email = req.body.email
    const Password = hashPassword(req.body.password)
@@ -63,11 +65,12 @@ const LoginUser = async (req,res,next)=>{
             message:"Not valid Password"
         })
     }
-    userauth = { Email: email, Password:Password}
+    userauth = { Email: email, Password:Password,role :req.body.role }
     const accessToken = await generateAccessToken(userauth)
     redisConnection.set("AccessToken",accessToken)
     redisConnection.expire("AccessToken",3600)
     console.log(accessToken)
+    console.log(jwt_decode(accessToken))
     res.status(200).json({
       status : 200,
       sucess: true,
@@ -78,6 +81,18 @@ const LoginUser = async (req,res,next)=>{
 }  
 }
 
+const GetAll = async (req,res,next) => {
+    try{
+        let response = await UserRepository.GetAll();
+        res.status(200).json({
+            status :200,
+            success :true,
+            data : response
+        })
+    }catch(err){
+        console.log(err)
+    }
+}
 
 const GetAllUserDetails = async (req,res,next) => {
     try {
@@ -94,7 +109,8 @@ const GetAllUserDetails = async (req,res,next) => {
 
 const GetPerticularUser = async (req,res,next) => {
     try{
-          let response = await UserRepository.GetPerticularUserDetails(req.query)
+          let response = await UserRepository.GetPerticularUserDetails(req.params)
+          console.log(response)
           res.status(200).json({
              status: 200,
              success: true,
@@ -121,10 +137,25 @@ const GetPerticularUserByUsingToken= async (req,res,next) =>{
           }
  }
 
+ const GetAllAdminDetalis = async(req,res) => {
+    try{
+        let response = await UserRepository.GetAllAdminDetalis()
+        res.status(200).json({
+           status: 200,
+           success: true,
+           Data : response
+          })
+      }catch(error){
+         console.log(error)
+        }
+ }
+
 module.exports={
     RegisterUser,
     LoginUser,
     GetAllUserDetails,
     GetPerticularUser,
-    GetPerticularUserByUsingToken
+    GetPerticularUserByUsingToken,
+    GetAllAdminDetalis,
+    GetAll
 }
